@@ -15,6 +15,13 @@ CMP = 0b10100111
 JMP = 0b01010100
 JNE = 0b01010110
 JEQ = 0b01010101
+AND = 0b10101000
+OR = 0b10101010
+XOR = 0b10101011
+NOT = 0b01101001
+SHL = 0b10101100
+SHR = 0b10101101
+MOD = 0b10100100
 
 
 class CPU:
@@ -41,6 +48,13 @@ class CPU:
         self.branch_table[JMP] = self.handle_JMP
         self.branch_table[JNE] = self.handle_JNE
         self.branch_table[JEQ] = self.handle_JEQ
+        self.branch_table[AND] = self.handle_AND
+        self.branch_table[OR] = self.handle_OR
+        self.branch_table[XOR] = self.handle_XOR
+        self.branch_table[NOT] = self.handle_NOT
+        self.branch_table[SHL] = self.handle_SHL
+        self.branch_table[SHR] = self.handle_SHR
+        self.branch_table[MOD] = self.handle_MOD
         self.running = False
         self.sub_pc = False
         self.fl = 0b000  # 000000LGE lower, greater, equal
@@ -86,6 +100,42 @@ class CPU:
         elif op == "MUL":
             # Multiply the value in reg a, b and store the result in reg_a
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "AND":
+            # Bitwise-OR the value in reg a, b and store the result in reg_a
+            value = self.reg[reg_a] | self.reg[reg_b]
+            self.reg[reg_a] = value
+        elif op == "OR":
+            # Bitwise-AND the value in reg a, b and store the result in reg_a
+            value = self.reg[reg_a] & self.reg[reg_b]
+            self.reg[reg_a] = value
+        elif op == "XOR":
+            # Bitwise-AND the value in reg a, b and store the result in reg_a
+            value = self.reg[reg_a] ^ self.reg[reg_b]
+            self.reg[reg_a] = value
+        elif op == "NOT":
+            # Perform a bitwise-NOT on the value in a register
+            value = ~self.reg[reg_a]
+            self.reg[reg_a] = value
+        elif op == "SHL":
+            # Shift the value in reg_a left by the number of bits specified in reg_b,
+            # filling the low bits with 0
+            value = self.reg[reg_a] << self.reg[reg_b]
+            self.reg[reg_a] = value
+        elif op == "SHR":
+            # Shift the value in reg_a right by the number of bits specified in reg_b,
+            # filling the high bits with 0
+            value = self.reg[reg_a] >> self.reg[reg_b]
+            self.reg[reg_a] = value
+        elif op == "MOD":
+            # If the value in the second register is 0,
+            if self.reg[reg_b] == 0:
+                # the system should print a message and halt
+                raise Exception(f'Can not perform operation at {self.IR:08b}')
+                self.handle_HLT(None) # unused argument
+            else:
+                # Divide the value in reg a, b and store the result in reg_a
+                value = self.reg[reg_a] % self.reg[reg_b]
+                self.reg[reg_a] = value 
         elif op == "CMP":
             # Compare the values in reg a, b
             # if value at reg_a == value at reg_b
@@ -263,6 +313,48 @@ class CPU:
         else:
             # No sub-routine operation was performed, set sub_pc to False
             self.sub_pc = False
+
+    def handle_AND(self, operands):
+        # Invoke the ALU to perform AND operation passing operands a and b
+        self.alu("AND", operands["a"], operands["b"])
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_OR(self, operands):
+        # Invoke the ALU to perform OR operation passing operands a and b
+        self.alu("OR", operands["a"], operands["b"])
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_XOR(self, operands):
+        # Invoke the ALU to perform XOR operation passing operands a and b
+        self.alu("XOR", operands["a"], operands["b"])
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_NOT(self, operands):
+        # Invoke the ALU to perform NOT operation passing operands a and b
+        self.alu("NOT", operands["a"], operands["b"])
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_SHL(self, operands):
+        # Invoke the ALU to perform SHL operation passing operands a and b
+        self.alu("SHL", operands["a"], operands["b"])
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_SHR(self, operands):
+        # Invoke the ALU to perform SHR operation passing operands a and b
+        self.alu("SHR", operands["a"], operands["b"])
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
+
+    def handle_MOD(self, operands):
+        # Invoke the ALU to perform MOD operation passing operands a and b
+        self.alu("MOD", operands["a"], operands["b"])
+        # Not a sub-routine operation, set sub_pc to False
+        self.sub_pc = False
 
     def handle_HLT(self, operands):
         # set running to False to Halt/End program run
