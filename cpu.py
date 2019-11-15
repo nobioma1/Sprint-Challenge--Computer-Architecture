@@ -12,6 +12,7 @@ ADD = 0b10100000
 CALL = 0b01010000
 RET = 0b00010001
 CMP = 0b10100111
+JMP = 0b01010100
 
 
 class CPU:
@@ -35,6 +36,7 @@ class CPU:
         self.branch_table[CALL] = self.handle_CALL
         self.branch_table[RET] = self.handle_RET
         self.branch_table[CMP] = self.handle_CMP
+        self.branch_table[JMP] = self.handle_JMP
         self.running = False
         self.sub_pc = False
         self.fl = 0b000  # 000000LGE lower, greater, equal
@@ -226,6 +228,13 @@ class CPU:
         self.alu("CMP", operands["a"], operands["b"])
         # Not a sub-routine operation, set sub_pc to False
         self.sub_pc = False
+
+    def handle_JMP(self, operands):
+        # Jump to the address stored in the given register
+        # Set the `PC` to the address stored in the given register.
+        self.pc = self.reg[operands["a"]]
+        # sub-routine operation, set sub_pc to True
+        self.sub_pc = True
 
     def handle_HLT(self, operands):
         # set running to False to Halt/End program run
