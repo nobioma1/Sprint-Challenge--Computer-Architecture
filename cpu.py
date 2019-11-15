@@ -14,6 +14,7 @@ RET = 0b00010001
 CMP = 0b10100111
 JMP = 0b01010100
 JNE = 0b01010110
+JEQ = 0b01010101
 
 
 class CPU:
@@ -39,6 +40,7 @@ class CPU:
         self.branch_table[CMP] = self.handle_CMP
         self.branch_table[JMP] = self.handle_JMP
         self.branch_table[JNE] = self.handle_JNE
+        self.branch_table[JEQ] = self.handle_JEQ
         self.running = False
         self.sub_pc = False
         self.fl = 0b000  # 000000LGE lower, greater, equal
@@ -99,7 +101,7 @@ class CPU:
                 # set G flag to 1
                 self.fl = 0b010
             # otherwise
-        else:
+            else:
                 # set flag to 0's
                 self.fl = 0b000
         else:
@@ -241,6 +243,18 @@ class CPU:
     def handle_JNE(self, operands):
         # If E flag == 0
         if self.fl == 0b100 or self.fl == 0b010:
+            # jump to the address stored in the given register
+            self.pc = self.reg[operands["a"]]
+            # sub-routine operation, set sub_pc to True
+            self.sub_pc = True
+        # Otherwise
+        else:
+            # No sub-routine operation was performed, set sub_pc to False
+            self.sub_pc = False
+
+    def handle_JEQ(self, operands):
+        # If E flag == 1
+        if self.fl == 0b001:
             # jump to the address stored in the given register
             self.pc = self.reg[operands["a"]]
             # sub-routine operation, set sub_pc to True
